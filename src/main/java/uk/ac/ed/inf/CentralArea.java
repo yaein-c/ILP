@@ -1,7 +1,5 @@
 package uk.ac.ed.inf;
 
-import java.util.ArrayList;
-
 public class CentralArea {
     private static CentralArea instance;
     public static double[] lng;
