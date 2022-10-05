@@ -6,7 +6,8 @@ public record LngLat(double lng, double lat){
      * @return true if current location is within central area and false otherwise
      */
     public boolean inCentralArea(){
-        return false;
+        CentralArea CA = CentralArea.getInstance();
+        return (lng > CA.lng[0] && lng < CA.lng[1]) && (lat < CA.lat[0] && lat > CA.lat[1]);
     }
 
     /**
@@ -19,19 +20,22 @@ public record LngLat(double lng, double lat){
 
     /**
      * Checks whether current location is close to other location
-     * @param otherLocation coordinates of next location
+     * @param otherLocation coordinates of another location
      * @return true if current location and other location are close and false otherwise
      */
     public boolean closeTo(LngLat otherLocation){
-        return false;
+        return distanceTo(otherLocation) < 0.00015;
     }
 
     /**
-     * Returns coordinates of new location after a move in a compass direction
+     * Returns LngLat object coordinates of new location after a move in a compass direction
      * @param direction given in degrees from 0 to 360
-     * @return coordinates of the new location of the drone
+     * @return LngLat coordinates of the new location of the drone
      */
     public LngLat nextPosition(int direction){
-        return null;
+        double r = 0.00015;
+        double x = r * Math.cos(direction);
+        double y = r * Math.sin(direction);
+        return new LngLat(x, y);
     }
 }
