@@ -8,7 +8,7 @@ public class Restaurant {
     //This static method acts as a factory method so you can call:
     //Restaurant [] participants =
     //Restaurant.getRestaurantsFromRestServer(new URL("https://...")
-    static Restaurant[] getRestaurantsFromRestServer(URL serverBaseAddress) {;}
+    //static Restaurant[] getRestaurantsFromRestServer(URL serverBaseAddress) {;}
 
 
 }
