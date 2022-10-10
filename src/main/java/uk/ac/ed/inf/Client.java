@@ -44,9 +44,7 @@ public class Client {
                 }
                 System.out.println( "The server responded as JSON−greeting : \n\n"
                         + response.greeting ) ;
-            } catch ( MalformedURLException e ) {
-                e.printStackTrace ( ) ;
-            } catch ( IOException e ) {
+            } catch (IOException e ) {
                 e.printStackTrace ( ) ;
             }
         }

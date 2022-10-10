@@ -1,14 +1,34 @@
 package uk.ac.ed.inf;
 
-public class Restaurant {
-    // returns the Menu
-    //objects as an array, which are defined for the restaurant.
-    public void getMenu(){;}
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.net.URL;
 
-    //This static method acts as a factory method so you can call:
-    //Restaurant [] participants =
-    //Restaurant.getRestaurantsFromRestServer(new URL("https://...")
-    //static Restaurant[] getRestaurantsFromRestServer(URL serverBaseAddress) {;}
+public class Restaurant {
+    public final String name;
+    public final double longitude;
+    public final double latitude;
+    public final Menu[] menu;
+
+    private Restaurant(@JsonProperty("name") String name,
+                       @JsonProperty("longitude") double longitude,
+                       @JsonProperty("latitude") double latitude,
+                       @JsonProperty("menu") Menu[] menu)
+    {
+        this.name = name;
+        this.longitude = longitude;
+        this.latitude = latitude;
+        this.menu = new Menu[menu.length];
+    }
+
+    public Menu[] getMenu(){
+        return menu;
+    }
+
+    public static Restaurant[] getRestaurantsFromRestServer(URL serverBaseAddress) throws IOException {
+        return new ObjectMapper().readValue(serverBaseAddress, Restaurant[].class);
+    }
 
 
 }

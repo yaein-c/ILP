@@ -6,7 +6,7 @@ public record LngLat(double lng, double lat){
      * @return true if current location is within central area and false otherwise
      */
     public boolean inCentralArea(){
-        CentralArea CA = CentralArea.getInstance();
+        var CA = CentralArea.getInstance();
         return (lng > CA.lng[0] && lng < CA.lng[1]) && (lat < CA.lat[0] && lat > CA.lat[1]);
     }
 
