@@ -21,17 +21,13 @@ public class Order {
      * Getter method for status of OrderOutcome
      * @return status
      */
-    public OrderOutcome getStatus() {
-        return status;
-    }
+    public OrderOutcome getStatus() { return status; }
 
     /**
      * Setter method for status of OrderOutcome
      * @param status
      */
-    public void setStatus(OrderOutcome status) {
-        this.status = status;
-    }
+    public void setStatus(OrderOutcome status) { this.status = status; }
 
 
     /**
@@ -71,6 +67,31 @@ public class Order {
             throw new InvalidPizzaCombinationException("Combination of pizzas cannot be delivered by the same restaurant");
         }
     }
+
+    /**
+     * Checks if all pizzas are defined regardless of which restaurant the pizza is served by
+     * @param restaurants
+     * @param orders
+     * @return true if one or more pizzas undefined
+     */
+     public Boolean checkPizzaDefined(Restaurant[] restaurants, String[] orders){
+
+         //loop through all menu items and check if order matches
+         int validPizzaCount = 0;
+         for (String order: orders) {
+             Loop:
+             for (Restaurant r: restaurants) {
+                 for (Menu item : r.getMenu() ) {
+                     if (item.getName().equalsIgnoreCase(order)) {
+                         validPizzaCount += 1;
+                         break Loop;
+                     }
+                 }
+             }
+         }
+         return validPizzaCount != orders.length;
+     }
+
 
     /**
      *
