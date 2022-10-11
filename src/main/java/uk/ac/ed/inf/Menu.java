@@ -12,4 +12,12 @@ public class Menu {
         this.name = name;
         this.priceInPence = priceInPence;
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getPriceInPence() {
+        return priceInPence;
+    }
 }
