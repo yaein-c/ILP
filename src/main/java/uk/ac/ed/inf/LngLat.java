@@ -6,6 +6,9 @@ public record LngLat(double lng, double lat){
      * @return true if current location is within central area and false otherwise
      */
     public boolean inCentralArea(){
+        //check if point inside polygon using winding number method
+        //calculate winding number by adding the angles subtended by sides of the polygon with the point
+        
         var CA = CentralArea.getInstance();
         return (lng > CA.lng[0] && lng < CA.lng[1]) && (lat < CA.lat[0] && lat > CA.lat[1]);
     }
@@ -34,8 +37,8 @@ public record LngLat(double lng, double lat){
      */
     public LngLat nextPosition(int direction){
         double r = 0.00015;
-        double x = r * Math.cos(direction);
-        double y = r * Math.sin(direction);
+        double x = r * Math.cos(Math.toRadians(direction));
+        double y = r * Math.sin(Math.toRadians(direction));
         return new LngLat(x, y);
     }
 }
