@@ -1,10 +1,9 @@
 package uk.ac.ed.inf;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
 
 public class Menu {
-    private String name;
-    private int priceInPence;
+    private final String name;
+    private final int priceInPence;
 
     private Menu( @JsonProperty("name") String name,
                   @JsonProperty("priceInPence") int priceInPence)
@@ -13,11 +12,15 @@ public class Menu {
         this.priceInPence = priceInPence;
     }
 
-    public String getName() {
-        return name;
-    }
+    /**
+     * Getter method for name of menu item
+     * @return name
+     */
+    public String getName() { return name; }
 
-    public int getPriceInPence() {
-        return priceInPence;
-    }
+    /**
+     * Getter method for priceInPence
+     * @return priceInPence
+     */
+    public int getPriceInPence() { return priceInPence; }
 }

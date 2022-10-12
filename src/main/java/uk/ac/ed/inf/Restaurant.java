@@ -22,10 +22,14 @@ public class Restaurant {
         this.menu = new Menu[menu.length];
     }
 
-    public Menu[] getMenu(){
-        return menu;
-    }
+    public Menu[] getMenu(){ return menu; }
 
+    /**
+     * Given a valid url to the REST server, returns array of participating restaurants with their menus.
+     * @param serverBaseAddress
+     * @return array of restaurants
+     * @throws IOException
+     */
     public static Restaurant[] getRestaurantsFromRestServer(URL serverBaseAddress) throws IOException {
         return new ObjectMapper().readValue(serverBaseAddress, Restaurant[].class);
     }
