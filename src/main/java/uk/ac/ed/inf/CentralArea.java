@@ -28,5 +28,9 @@ public class CentralArea {
         return instance;
     }
 
-    private CentralAreaPoint[] getPoints() { return points; }
+    /**
+     * Getter method for the points that delineate the central area.
+     * @return central area points
+     */
+    public CentralAreaPoint[] getPoints() { return points; }
 }

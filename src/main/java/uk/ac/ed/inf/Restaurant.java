@@ -1,8 +1,10 @@
 package uk.ac.ed.inf;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.net.URL;
 
 public class Restaurant {
@@ -19,7 +21,7 @@ public class Restaurant {
         this.name = name;
         this.longitude = longitude;
         this.latitude = latitude;
-        this.menu = new Menu[menu.length];
+        this.menu = menu;
     }
 
     public Menu[] getMenu(){ return menu; }
@@ -31,7 +33,7 @@ public class Restaurant {
      * @throws IOException
      */
     public static Restaurant[] getRestaurantsFromRestServer(URL serverBaseAddress) throws IOException {
-        return new ObjectMapper().readValue(serverBaseAddress, Restaurant[].class);
+        return new ObjectMapper().readValue(serverBaseAddress, Restaurant[].class );
     }
 
 

@@ -1,9 +1,8 @@
 package uk.ac.ed.inf;
 
-import java.util.ArrayList;
-
 /**
- * Orders do something.
+ * Order class has field to check the status of an order
+ * as well as a method to calculate total cost of items inside an order including delivery cost
  */
 public class Order {
     public enum OrderOutcome {
@@ -111,8 +110,10 @@ public class Order {
      * @return total cost plus delivery in pence
      */
         public int getDeliveryCost(Restaurant[] restaurants, String[] orders){
-
-            if ( (orders.length < 1) || (orders.length > 4) ) {
+            if (restaurants == null || restaurants.length < 1) {
+                setStatus(OrderOutcome.Invalid);
+                return 1;
+            } else if ( (orders == null || orders.length < 1) || (orders.length > 4) ) {
                 setStatus(OrderOutcome.InvalidPizzaCount);
                 return 1;
             }
