@@ -139,6 +139,5 @@ public class Order {
             }
             return totalCost;
         }
-
     }
 

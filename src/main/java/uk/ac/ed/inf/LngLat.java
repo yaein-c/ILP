@@ -90,6 +90,6 @@ public record LngLat(double lng, double lat){
         double r = 0.00015;
         double x = r * Math.cos(Math.toRadians(direction));
         double y = r * Math.sin(Math.toRadians(direction));
-        return new LngLat(x, y);
+        return new LngLat(lng + x, lat + y);
     }
 }

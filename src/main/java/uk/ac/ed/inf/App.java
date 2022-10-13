@@ -17,6 +17,7 @@ public class App
         System.out.println("dist(O,B) = " + O.distanceTo(B));
         System.out.println("A should be false: " + A.inCentralArea());
         System.out.println("B should be true: " + B.inCentralArea());
+        System.out.println(B.nextPosition(180));
 
         Restaurant[] restaurants = Restaurant.getRestaurantsFromRestServer(new URL("https://ilp-rest.azurewebsites.net/restaurants"));
         Order order = new Order();
