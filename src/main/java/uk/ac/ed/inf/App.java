@@ -2,6 +2,8 @@ package uk.ac.ed.inf;
 
 import java.io.IOException;
 import java.net.URL;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Hello world!
@@ -20,15 +22,11 @@ public class App
         System.out.println(B.nextPosition(180));
 
         Restaurant[] restaurants = Restaurant.getRestaurantsFromRestServer(new URL("https://ilp-rest.azurewebsites.net/restaurants"));
-        Order order = new Order();
-        System.out.println("If no order yet then : " + order.getStatus());
-        order.getDeliveryCost(restaurants, null);
-        System.out.println("If orders null then : " + order.getStatus());
-        String[] pizzas = new String[]{"Margarita"};
-        order.getDeliveryCost(null, pizzas);
-        System.out.println("If restaurants null then : " + order.getStatus());
-        int cost = order.getDeliveryCost(restaurants, pizzas);
-        System.out.println("Cost of Margarita and delivery is " + cost);
+
+        var date = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yy");
+        String formattedDate = date.format(formatter);
+        System.out.println(formattedDate);
 
     }
 }
