@@ -11,6 +11,13 @@ import java.time.format.DateTimeFormatter;
 public class App 
 {
     public static void main( String[] args ) throws IOException {
+        //load in restaurants
+        //load in orders
+        //load in central area
+
+
+
+
         System.out.println( "Hello World!" );
         var O = new LngLat(0,0);
         var A = new LngLat(0,1);
