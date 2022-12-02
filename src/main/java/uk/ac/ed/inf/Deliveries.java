@@ -1,17 +1,37 @@
 package uk.ac.ed.inf;
 
+import java.util.ArrayList;
+
 /**
  * Used to store processed orders and possibly write them to a file
  */
 public class Deliveries {
-    public DeliveryItem[] validDeliveries;
-    public DeliveryItem[] invalidDeliveries;
+    public ArrayList<DeliveryItem> validDeliveries;
+    public ArrayList<DeliveryItem> invalidDeliveries;
+    public ArrayList<Order> deliveries;
 
-    public void processOrders(Order[] orders){
-        //get array of orders
-        //assign outcomes to each invalid one and add to class fields
+    public Deliveries(Order[] orders, Restaurant[] restaurants)
+    {
+        deliveries = new ArrayList<>();
+        validDeliveries = new ArrayList<>();
+        invalidDeliveries = new ArrayList<>();
+        processOrders(orders, restaurants);
+    }
 
-
-
+    /**
+     * Given array of orders and array of participating restaurants, separate the valid and invalid orders and update the class fields
+     * @param orders
+     * @param restaurants
+     */
+    public void processOrders(Order[] orders, Restaurant[] restaurants){
+        for (Order o: orders) {
+            int value = o.process(restaurants);
+            if (value == 1) {
+                DeliveryItem d = new DeliveryItem(o.getOrderNum(), o.getStringStatus(), o.getCostInPence());
+                invalidDeliveries.add(d);
+            } else {
+                deliveries.add(o);
+            }
+        }
     }
 }

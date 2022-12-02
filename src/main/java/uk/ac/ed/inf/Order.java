@@ -56,24 +56,23 @@ public class Order {
         this.total = total;
         this.orderItems = orderItems;
     }
-    
-    /**
-     * Getter method for status of OrderOutcome.
-     *
-     * @return status
-     */
+
+    // GETTERS AND SETTERS
+
     public OrderOutcome getStatus() {
         return status;
     }
-
-    /**
-     * Setter method for status of OrderOutcome.
-     *
-     * @param status
-     */
     public void setStatus(OrderOutcome status) {
         this.status = status;
     }
+
+    public String getOrderNum() { return orderNum; }
+
+    public String getStringStatus() { return status.toString(); }
+
+    public int getCostInPence() { return total; }
+
+    // OTHER METHODS
 
     /**
      * Retrieves the orders for a given day from the server
@@ -81,9 +80,9 @@ public class Order {
      * @param serverAddress
      * @return array of orders for a given date
      */
-    public static Order[] getOrdersFromRestServer(URL serverAddress) {
+    public static Order[] getOrdersFromRestServer(URL serverAddress, String date) {
         try {
-            return new ObjectMapper().readValue(serverAddress, Order[].class);
+            return new ObjectMapper().readValue( new URL(serverAddress + "/orders/" + date), Order[].class);
         } catch (MalformedURLException e) {
             System.err.println("Invalid URL for orders");
             e.printStackTrace();
