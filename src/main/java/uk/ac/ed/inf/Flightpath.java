@@ -1,5 +1,7 @@
 package uk.ac.ed.inf;
 
+import java.net.URL;
+
 /**
  * This class will calculate the flightpath (and write the files)
  */
@@ -10,11 +12,11 @@ public class Flightpath {
 
     public Flightpath(Order[] orders,
                       Restaurant[] restaurants,
-                      NoFlyZones noFlyZones,
-                      CentralArea centralArea)
+                      URL serverURL)
+                      //int seed)
     {
-        this.noFlyZones = noFlyZones;
-        this.centralArea = CentralArea.getInstance();
+        this.noFlyZones = NoFlyZones.getInstance(serverURL);
+        this.centralArea = CentralArea.getInstance(serverURL);
         this.deliveries = new Deliveries(orders, restaurants);
     }
     /**

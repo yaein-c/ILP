@@ -2,6 +2,7 @@ package uk.ac.ed.inf;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 public class CentralArea {
@@ -9,21 +10,25 @@ public class CentralArea {
 
     private CentralAreaPoint[] points;
 
-    private CentralArea() {
+    private CentralArea(URL serverUrl) {
         var objectMapper = new ObjectMapper();
         try {
-            points = objectMapper.readValue( new URL("https://ilp-rest.azurewebsites.net/centralArea"),
+            this.points = objectMapper.readValue( new URL(serverUrl + "/centralArea"),
                      CentralAreaPoint[].class);
-        } catch (IOException e) {
+        } catch (MalformedURLException e) {
+            System.err.println("Invalid URL for central area");
             e.printStackTrace();
+            System.exit(1);
+        } catch (IOException e) {
+            System.err.println("Error while processing JSON data for restaurants");
+            e.printStackTrace();
+            System.exit(1);
         }
     }
 
-    synchronized public static CentralArea getInstance()
-    {
-        if (instance == null)
-        {
-            instance = new CentralArea();
+    public static CentralArea getInstance(URL serverUrl) {
+        if (instance == null) {
+            instance = new CentralArea(serverUrl);
         }
         return instance;
     }

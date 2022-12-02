@@ -118,11 +118,10 @@ public class Order {
     }
 
     /**
-     * Throws exception if the ordered pizza combination cannot be delivered by the same restaurant.
-     *
+     * Check if pizza combination can be delivered by the same restaurant
      * @param restaurants
      * @param orders
-     * @throws InvalidPizzaCombinationException
+     * @return true if pizza combo cannot be delivered by the same restaurant
      */
     public Boolean checkPizzaCombination(Restaurant[] restaurants, String[] orders) {
         var currentRestaurant = getCurrentRestaurant(restaurants, orders);

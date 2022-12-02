@@ -24,8 +24,8 @@ public class App
         var B = new LngLat(-3.19,55.943);
 
         System.out.println("dist(O,B) = " + O.distanceTo(B));
-        System.out.println("A should be false: " + A.inCentralArea());
-        System.out.println("B should be true: " + B.inCentralArea());
+        System.out.println("A should be false: " + A.inCentralArea(new URL("https://ilp-rest.azurewebsites.net")));
+        System.out.println("B should be true: " + B.inCentralArea(new URL("https://ilp-rest.azurewebsites.net")));
         System.out.println(B.nextPosition(180));
 
         Restaurant[] restaurants = Restaurant.getRestaurantsFromRestServer(new URL("https://ilp-rest.azurewebsites.net/restaurants"));

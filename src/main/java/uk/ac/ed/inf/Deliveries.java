@@ -19,7 +19,8 @@ public class Deliveries {
     }
 
     /**
-     * Given array of orders and array of participating restaurants, separate the valid and invalid orders and update the class fields
+     * Given array of orders and array of participating restaurants,
+     * separate the valid and invalid orders and update the class fields
      * @param orders
      * @param restaurants
      */
@@ -34,4 +35,11 @@ public class Deliveries {
             }
         }
     }
+
+    /**
+     * TODO
+     * Called after all deliveries have been given an outcome
+     * Writes the json file
+     */
+    public void write(String filename){}
 }
