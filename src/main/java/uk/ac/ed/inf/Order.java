@@ -3,7 +3,9 @@ package uk.ac.ed.inf;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.time.DateTimeException;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 
 import java.io.IOException;
@@ -46,7 +48,7 @@ public class Order {
                   @JsonProperty("creditCardExpiry") String cardExpiry,
                   @JsonProperty("cvv") String cardCvv,
                   @JsonProperty("priceTotalInPence") int total,
-                  @JsonProperty("orderItems") String[] orderItems, OrderOutcome status) {
+                  @JsonProperty("orderItems") String[] orderItems) {
         this.orderNum = orderNum;
         this.orderDate = orderDate;
         this.customer = customer;
@@ -177,8 +179,12 @@ public class Order {
     public Boolean checkExpiryDate() {
         //convert to date and check that card still valid
         var formatter = DateTimeFormatter.ofPattern("MM/yy");
-        var expiry = LocalDate.from(formatter.parse(cardExpiry));
-        return LocalDate.now().isAfter(expiry);
+        try {
+            var expiry = YearMonth.parse(cardExpiry, formatter).atEndOfMonth();
+            return LocalDate.now().isAfter(expiry);
+        } catch (DateTimeException e) {
+            return false;
+        }
     }
 
     /**

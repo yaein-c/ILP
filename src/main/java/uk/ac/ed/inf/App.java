@@ -11,29 +11,19 @@ import java.time.format.DateTimeFormatter;
 public class App 
 {
     public static void main( String[] args ) throws IOException {
+        //TODO
         //load in restaurants
         //load in orders
         //load in central area
+        //assign runtime args
 
+        Flightpath flightpaths = new Flightpath(new URL("https://ilp-rest.azurewebsites.net"), "2023-02-21");
 
-
-
-        System.out.println( "Hello World!" );
-        var O = new LngLat(0,0);
-        var A = new LngLat(0,1);
-        var B = new LngLat(-3.19,55.943);
-
-        System.out.println("dist(O,B) = " + O.distanceTo(B));
-        System.out.println("A should be false: " + A.inCentralArea(new URL("https://ilp-rest.azurewebsites.net")));
-        System.out.println("B should be true: " + B.inCentralArea(new URL("https://ilp-rest.azurewebsites.net")));
-        System.out.println(B.nextPosition(180));
-
-        Restaurant[] restaurants = Restaurant.getRestaurantsFromRestServer(new URL("https://ilp-rest.azurewebsites.net/restaurants"));
-
-        var date = LocalDate.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yy");
-        String formattedDate = date.format(formatter);
-        System.out.println(formattedDate);
+        var outCA = new LngLat(-3,55);
+        var outCA2 = new LngLat(-2,55);
+        var inCA = new LngLat(-3.19, 55.944);
+        var inCA2 = new LngLat(-3.19,55.945);
+        System.out.println(flightpaths.checkCentralAreaCollision(inCA, inCA2));
 
     }
 }

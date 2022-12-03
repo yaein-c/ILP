@@ -8,12 +8,11 @@ public record LngLat(double lng, double lat){
      * Takes central area definition from REST server and calculates if the current location is within central area.
      * @return true if current location is within central area and false otherwise
      */
-    public boolean inCentralArea(URL serverURL){
+    public boolean inCentralArea(CentralArea centralArea){
         //check if point inside polygon using winding number method
         //calculate winding number by adding the angles subtended by sides of the polygon with the point
         //points are given counter-clockwise
 
-        var centralArea = CentralArea.getInstance(serverURL);
         double angleCounter = 0; //in degrees
         CentralAreaPoint[] points = centralArea.getPoints();
         LngLat[] edges = new LngLat[points.length];

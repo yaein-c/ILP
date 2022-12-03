@@ -10,14 +10,13 @@ public class Flightpath {
     public NoFlyZones noFlyZones;
     public CentralArea centralArea;
 
-    public Flightpath(Order[] orders,
-                      Restaurant[] restaurants,
-                      URL serverURL)
+    public Flightpath(URL serverURL,
+                      String date)
                       //int seed)
     {
         this.noFlyZones = NoFlyZones.getInstance(serverURL);
         this.centralArea = CentralArea.getInstance(serverURL);
-        this.deliveries = new Deliveries(orders, restaurants);
+        this.deliveries = new Deliveries(Order.getOrdersFromRestServer(serverURL, date), Restaurant.getRestaurantsFromRestServer(serverURL));
     }
     /**
      * TODO
@@ -25,15 +24,24 @@ public class Flightpath {
      * @return true if path collides with no-fly-zone
      */
     public Boolean checkCollision() {
+
         return true;
     }
 
     /**
-     * Given a path segment
+     * Given a path segment check if it intersects or collides with central area
      * @return true if path collides with central area
      */
-    public Boolean checkCentralAreaCollision() {
-        return true;
+    public Boolean checkCentralAreaCollision(LngLat a, LngLat b) {
+        //load in all ca segments and check if path segment intersects with any of them
+        CentralAreaPoint[] points = centralArea.getPoints();
+        for (int i = 0; i < points.length; i++) {
+            var q = points[i].getLngLat();
+            var r = points[(i+1)% points.length].getLngLat();
+            if (LngLat.checkIntersect(a,b,q,r)) {
+                return true; }
+        }
+        return false;
     }
 
 }
