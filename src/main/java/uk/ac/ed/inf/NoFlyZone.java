@@ -21,5 +21,5 @@ public class NoFlyZone {
     }
 
     public String getName() { return name; }
-    public LngLat[] getCoordinates() { return lngLats; }
+    public LngLat[] getLngLats() { return lngLats; }
 }

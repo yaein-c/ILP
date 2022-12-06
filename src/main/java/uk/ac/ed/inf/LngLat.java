@@ -5,6 +5,7 @@ import java.net.URL;
 public record LngLat(double lng, double lat){
 
     /**
+     * TODO
      * Takes central area definition from REST server and calculates if the current location is within central area.
      * @return true if current location is within central area and false otherwise
      */
@@ -85,13 +86,26 @@ public record LngLat(double lng, double lat){
 
     /**
      * Returns LngLat object coordinates of new location after a move in a compass direction
-     * @param direction given in degrees from 0 to 360
+     * @param direction given in degrees from 0 to 359
      * @return LngLat coordinates of the new location of the drone
      */
     public LngLat nextPosition(float direction){
         double r = 0.00015;
         double x = r * Math.cos(Math.toRadians(direction));
         double y = r * Math.sin(Math.toRadians(direction));
+        return new LngLat(lng + x, lat + y);
+    }
+
+    /**
+     * Returns LngLat coordinates of new location after a given number of moves in a compass direction
+     * @param direction given in degrees from 0 to 359
+     * @param moves number of moves
+     * @return LngLat coordinates of new location of drone
+     */
+    public LngLat nextPosition(float direction, int moves){
+        double r = 0.00015;
+        double x = r * moves * Math.cos(Math.toRadians(direction));
+        double y = r * moves * Math.sin(Math.toRadians(direction));
         return new LngLat(lng + x, lat + y);
     }
 
