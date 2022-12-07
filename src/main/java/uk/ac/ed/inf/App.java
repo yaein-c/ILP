@@ -31,7 +31,22 @@ public class App
         //check if straight line from AT to civerino bumps into NFZ
         System.out.println("AT-civer has NFZ: " + flightpath.checkNoFlyZoneCollision(AT, civerinos));
         //now check where they collide
-        System.out.println("collision at " + flightpath.findNoFlyZoneCollision(AT, civerinos));
+        var collision = flightpath.findNoFlyZoneCollision(AT, civerinos);
+        System.out.println("collision at " + collision);
+        System.out.println("distance from collision to dest: " + collision.distanceTo(civerinos));
+        //find out which NoFlyZone this is
+        var inNFZ = collision.nextPosition(collision.angleTo(civerinos));
+        var NFZ = flightpath.findNoFlyZone(collision, inNFZ);
+        System.out.println("NoFlyZone: "+NFZ.getName());
+        //try to go around
+        var nearBristo = new LngLat(-3.1883, 55.9452);
+        var try1 = flightpath.tryClockwise(nearBristo, civerinos, NFZ);
+        var try2 = flightpath.tryClockwise(try1, civerinos, NFZ);
+        System.out.println("path to dest?: " + !flightpath.checkNoFlyZoneCollision(try2, civerinos, NFZ));
+
+
+
+
 
 
 
