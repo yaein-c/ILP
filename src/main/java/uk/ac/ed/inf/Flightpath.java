@@ -11,6 +11,8 @@ public class Flightpath {
     public NoFlyZones noFlyZones;
     public CentralArea centralArea;
 
+    public int battery;
+
     public Flightpath(URL serverURL,
                       String date)
                       //int seed)
@@ -20,11 +22,6 @@ public class Flightpath {
         this.deliveries = new Deliveries(Order.getOrdersFromRestServer(serverURL, date), Restaurant.getRestaurantsFromRestServer(serverURL));
     }
 
-    //
-    //
-    //TODO could try to refactor all the NoFlyZone methods into NoFlyZones class...
-    //
-    //
     /**
      * Given a path segment, check if it will collide with a no-fly-zone
      * @return true if path collides with no-fly-zone
@@ -72,6 +69,7 @@ public class Flightpath {
      * @return the NoFlyZone that the path segment collides with
      */
     public NoFlyZone findNoFlyZone(LngLat a, LngLat b) {
+        b = moveLine(a,b);
         NoFlyZone[] zones = noFlyZones.getZones();
         for (NoFlyZone z : zones){
             int size = z.getLngLats().length;
@@ -118,135 +116,109 @@ public class Flightpath {
     }
 
     /**
-     * TODO
-     * Given path segment AB, move the drone along this path
-     * @param a
-     * @param b
-     * @return array of Moves that the drone made
-     */
-    public Move[] moves(LngLat a, LngLat b) {
-        return null;
-    }
-
-    /**
-     * Recursively check smaller segments until the segment that collides with NoFlyZone is found.
+     * Check segments until the segment that collides with NoFlyZone is found.
      * If there is more than one collision, find the first collision.
      * @param a
      * @param b
      * @return return LngLat close to NoFlyZone
      */
     public LngLat findNoFlyZoneCollision(LngLat a, LngLat b) {
-        b = moveLine(a,b);
-        double d = a.distanceTo(b);
-        System.out.println("distance: " + d/0.00015 );
-        if (d <= 0.00015) {
-            return a;
+        LngLat end = moveLine(a,b);
+        Float direction = a.angleTo(end);
+        LngLat position = a;
+        LngLat nextPosition = position.nextPosition(direction);
+        int moves = 0;
+        while (!checkNoFlyZoneCollision(position, nextPosition)) {
+            position = nextPosition;
+            nextPosition = position.nextPosition(direction);
+            moves += 1;
         }
-        LngLat midpointAB = moveLine(a, new LngLat((a.lng()+b.lng())/2, (a.lat()+b.lat())/2));
-        if (checkNoFlyZoneCollision(a ,midpointAB)) {
-            return findNoFlyZoneCollision(a, midpointAB); }
-        else {
-            return findNoFlyZoneCollision(midpointAB, b); }
-    }
-
-    /**
-     * Change the angle until the drone can move at least once without colliding with the NoFlyZone
-     * @param a current location
-     * @param b desired final destination of drone
-     * @return LngLat of the next position of the drone
-     */
-    public LngLat tryClockwise(LngLat a, LngLat b, NoFlyZone zone) {
-        float direction = a.angleTo(b);
-        LngLat nextPosition = a.nextPosition(direction);
-        while ( checkNoFlyZoneCollision(a, nextPosition, zone)) {
-            direction = (float) ((direction + 22.5)%360);
-            nextPosition = a.nextPosition(direction);
-        }
-        //keep moving in this direction until a collision or path towards destination found
-        var position = nextPosition;
-        Boolean NoClearPath = checkNoFlyZoneCollision(position, b, zone);
-        Boolean collision = checkNoFlyZoneCollision(position, position.nextPosition(direction), zone);
-        Boolean NoChangeDirection = checkNoFlyZoneCollision(position, position.nextPosition(position.angleTo(b)), zone);
-        while (NoClearPath & !collision & NoChangeDirection ) {
-            position = position.nextPosition(direction);
-            NoClearPath = checkNoFlyZoneCollision(position, b, zone);
-            collision = checkNoFlyZoneCollision(position, position.nextPosition(direction));
-            NoChangeDirection = checkNoFlyZoneCollision(position, position.nextPosition(position.angleTo(b)), zone);
-        }
+        System.out.println("collision " + moves + " moves away");
         return position;
     }
 
     /**
-     * Change the angle until the drone can move at least once without colliding with the NoFlyZone
-     * @param a current location
-     * @param b desired final destination of drone
-     * @return LngLat of the next position of the drone
+     * Check if changing the angle will avoid collision with a given NoFlyZone
+     * @param a start
+     * @param b destination
+     * @param zone NoFlyZone
+     * @return path to destination that is collision-free, else null
      */
-    public LngLat tryAntiClockwise(LngLat a, LngLat b, NoFlyZone zone) {
-        float direction = a.angleTo(b);
-        LngLat nextPosition = a.nextPosition(direction);
-        while ( checkNoFlyZoneCollision(a, nextPosition, zone)) {
-            direction = (float) ((direction - 22.5 + 360)%360);
-            nextPosition = a.nextPosition(direction);
+    public LngLat tryAngles(LngLat a, LngLat b, NoFlyZone zone) {
+        //find path
+        float angle = a.angleTo(b);
+        LngLat nextPosition;
+        ArrayList<LngLat> paths = new ArrayList<>();
+        //positive directions
+        for (int i = 1; i < 15; i++) {
+            angle = (float) (angle + (i*22.5))%360;
+            nextPosition = a.nextPosition(angle);
+            if (!checkNoFlyZoneCollision(a, nextPosition,zone)) {
+                paths.add(nextPosition);
+            }
         }
-        //keep moving in this direction until a collision or path towards destination found
-        var position = nextPosition;
-        Boolean NoClearPath = checkNoFlyZoneCollision(position, b, zone);
-        Boolean collision = checkNoFlyZoneCollision(position, position.nextPosition(direction));
-        Boolean NoChangeDirection = checkNoFlyZoneCollision(position, position.nextPosition(position.angleTo(b)), zone);
-        while (NoClearPath & !collision & NoChangeDirection) {
-            position = position.nextPosition(direction);
-            NoClearPath = checkNoFlyZoneCollision(position, b, zone);
-            collision = checkNoFlyZoneCollision(position, position.nextPosition(direction));
-            NoChangeDirection = checkNoFlyZoneCollision(position, position.nextPosition(position.angleTo(b)), zone);
+        //negative directions
+        for (int i = 1; i < 15; i++) {
+            angle = (float) (angle + (i * -22.5) + 360) % 360;
+            nextPosition = a.nextPosition(angle);
+            if (!checkNoFlyZoneCollision(a, nextPosition,zone)) {
+                paths.add(nextPosition);
+            }
         }
-        return position;
-
+        if (paths.size() < 1) {
+            return null;
+        } else {
+            //if there is more than one path remaining pick shortest distance to destination
+            var shortest = paths.get(0);
+            for (LngLat l : paths) {
+                if (l.distanceTo(b) < shortest.distanceTo(b)) {
+                    shortest = l;
+                }
+            }
+            return shortest;
+        }
     }
 
     /**
-     * Given point of collision and destination, find a path around the given NoFlyZone
-     * @param a LngLat where the drone collides with a NoFlyZone
-     * @param b LngLat of destination
-     * @param zone the NoFlyZone that the drone collides with
-     * @return path going around NoFlyZone
+     * Given a start point and destination, try to find a path around the NoFlyZone
+     * @param a start
+     * @param b destination
+     * @param zone NoFlyZone
+     * @return path around NoFlyZone
      */
     public LngLat[] moveAroundNoFlyZone(LngLat a, LngLat b, NoFlyZone zone) {
-        //keep applying tryClockwise() and tryAntiClockwise() until a clear path to destination is found
-        //choose the path that uses the smallest number of moves
-        //return all the path segments travelled
-        ArrayList<LngLat> clockwise = new ArrayList<>();
-        ArrayList<LngLat> anticlockwise = new ArrayList<>();
-        Boolean NoClockwisePath = checkNoFlyZoneCollision(a, b, zone);
-        Boolean NoAnticlockwisePath = checkNoFlyZoneCollision(a, b, zone);
-        LngLat clockwisePosition = a;
-        LngLat anticlockwisePosition = a;
-        clockwise.add(clockwisePosition);
-        anticlockwise.add(anticlockwisePosition);
-        while (NoClockwisePath) {
-            clockwisePosition = tryClockwise(clockwisePosition,b,zone);
-            clockwise.add(clockwisePosition);
-            NoClockwisePath = checkNoFlyZoneCollision(clockwisePosition, b, zone);
+        //keep applying tryAngles() until NoFlyZone is cleared
+        ArrayList<LngLat> path = new ArrayList<>();
+        LngLat position = tryAngles(a,b,zone);
+        path.add(position);
+        while (checkNoFlyZoneCollision(position, b, zone)) {
+            if (position == null) {
+                return null;
+            }
+            position = tryAngles(position, b, zone);
+            path.add(position);
         }
-        while (NoAnticlockwisePath) {
-            anticlockwisePosition = tryAntiClockwise(anticlockwisePosition, b, zone);
-            anticlockwise.add(anticlockwisePosition);
-            NoAnticlockwisePath = checkNoFlyZoneCollision(anticlockwisePosition, b, zone);
-        }
-        Double clockwiseDistance = clockwisePosition.distanceTo(b);
-        for (int i = 1; i < clockwise.size(); i++) {
-            clockwiseDistance += clockwise.get(i-1).distanceTo(clockwise.get(i));
-        }
-        Double anticlockwiseDistance = anticlockwisePosition.distanceTo(b);
-        for (int i = 1; i < anticlockwise.size(); i++) {
-            anticlockwiseDistance += anticlockwise.get(i-1).distanceTo(anticlockwise.get(i));
-        }
-        if (clockwiseDistance < anticlockwiseDistance) {
-            LngLat[] path = new LngLat[clockwise.size()];
-            return clockwise.toArray(path);
+        LngLat[] pathSegs = new LngLat[path.size()];
+        return path.toArray(pathSegs);
+    }
+
+    /**
+     * Given a start and destination, find a collision and NoFlyZone
+     * and call moveAroundNoFlyZone()
+     * @param a start
+     * @param b destination
+     * @return the path around a NoFlyZone
+     */
+    public LngLat[] moveAround(LngLat a, LngLat b) {
+        //collision detected
+        //find collision
+        var zone = findNoFlyZone(a,b);
+        var collision = findNoFlyZoneCollision(a,b);
+        if (collision == a) {
+            return null;
         } else {
-            LngLat[] path = new LngLat[anticlockwise.size()];
-            return anticlockwise.toArray(path);
+            LngLat[] path = moveAroundNoFlyZone(a,b,zone);
+            return path;
         }
     }
 
@@ -255,29 +227,21 @@ public class Flightpath {
      * If there is a NoFlyZone, go around.
      * @param a LngLat of start location
      * @param b LngLat of destination
-     * @return paths segments from a up to b, or up until a NoFlyZone is cleared
+     * @return paths segments from a + move, up to b, or up until a NoFlyZone is cleared
      */
     public LngLat[] move(LngLat a, LngLat b) {
         //check collisions
         if (checkNoFlyZoneCollision(a, b)) {
-            ArrayList<LngLat> pathSegments = new ArrayList<>();
-            pathSegments.add(a);
-            LngLat collision = findNoFlyZoneCollision(a, b);//find closest collision with NoFlyZone and move there
-            LngLat inNoFlyZone = collision.nextPosition(collision.angleTo(b));
-            System.out.println("collision:" + collision);
-            System.out.println("inNFZ:" + inNoFlyZone);
-            NoFlyZone zone = findNoFlyZone(collision, inNoFlyZone);//find which NoFlyZone
-            LngLat[] segs = moveAroundNoFlyZone(collision,b,zone);//move around NoFlyZone
-            for (LngLat l : segs) {
-                pathSegments.add(l);
+            LngLat[] path = moveAround(a,b);
+            if (path == null) {
+                return null;
+            } else {
+                return path;
             }
-            LngLat[] path = new LngLat[pathSegments.size()];
-            return pathSegments.toArray(path);
-
         // no collision
         } else {
             LngLat end = moveLine(a,b); //move in straight line to destination
-            LngLat[] path = {a, end};
+            LngLat[] path = {end};
             return path;
         }
     }
@@ -294,12 +258,80 @@ public class Flightpath {
         pathSegments.add(a);
         while (!position.closeTo(b)) {
             LngLat[] path = move(position,b);
+            if (path == null) {
+                return null;
+            }
             position = path[path.length-1];
-            for (int i = 1; i < path.length; i++) {
+            for (int i = 0; i < path.length; i++) {
                 pathSegments.add(path[i]);
             }
         }
         LngLat[] finalPath = new LngLat[pathSegments.size()];
         return pathSegments.toArray(finalPath);
     }
+
+    /**
+     * For all restaurants, find a valid flightpath and save into class field
+     * call deliver() to deliver an order
+     * field
+     */
+    public flightpaths() {
+
+    }
+
+    /**
+     * Given path to destination, check if it is a valid flightpath.
+     * @param a LngLat of start
+     * @param b LngLat of destination
+     * @param path
+     * @return true if valid, else false
+     */
+    public boolean validFlightPath(LngLat a, LngLat b, LngLat[] path) {
+        int length = path.length;
+        if (path == null) {
+            return false;
+        }
+        if (!(path[0].lng() == a.lng() & path[0].lat() == a.lat())) { //check drone starts at start
+            return false;
+        } else if (!path[length-1].closeTo(b)) { //check that drone stops close to destination
+            return false;
+        }
+        int centralAreaCollision = 0;
+        for (int i = 0; i < length-1; i++) { //check that path doesn't collide with NoFlyZones
+            // and check that entire path only intersects central area at most once
+            if (checkNoFlyZoneCollision(path[i], path[i+1])) {
+                return false;
+            }
+            if (checkCentralAreaCollision(path[i], path[i+1])) {
+                centralAreaCollision += 1;
+                if (centralAreaCollision > 1) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * TODO
+     * Given path segment AB, move the drone along this path
+     * @param a
+     * @param b
+     * @return array of Moves that the drone made
+     */
+    public Move[] moves(LngLat a, LngLat b) {
+        return null;
+    }
+
+    /**
+     * TODO
+     *
+     */
+    public void deliver() {
+    }
+
+    /**
+     * TODO
+     */
+    public void deliverAll() {}
 }

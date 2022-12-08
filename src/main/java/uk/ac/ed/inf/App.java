@@ -24,17 +24,32 @@ public class App
         var dominos = new LngLat(-3.1838572025299072, 55.94449876875712);
         var civerinos = new LngLat(-3.1913,55.9455);
         var soderberg = new LngLat(-3.1940, 55.9439);
+        var sora = new LngLat(-3.2025, 55.9433);
 
         var inCA = new LngLat(-3.19, 55.944);
         var inCA2 = new LngLat(-3.19,55.945);
-        var AT = new LngLat(-3.1869,55.9445);
+        var AT = new LngLat( -3.186874,55.944494);
 
         //TODO
-        System.out.println(flightpath.checkNoFlyZoneCollision(AT,civerinos));
-//        LngLat[] path = flightpath.flightpath(AT,civerinos);
-//        for (LngLat l : path) {
+        //sora to AT times out
+        //soderberg to AT times out
+
+
+        LngLat[] path = flightpath.flightpath(civerinos, AT);
+        System.out.println(path);
+
+
+
+
+
+
+
+
+//        for (LngLat l : lats) {
 //            System.out.println(l);
 //        }
+
+
 
     }
 }
