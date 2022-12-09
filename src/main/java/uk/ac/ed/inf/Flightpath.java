@@ -3,12 +3,15 @@ package uk.ac.ed.inf;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 
 /**
- * This class will calculate the flightpath (and write the files)
+ * This class loads in all the data necessary to calculate flightpaths.
+ * Flightpaths are calculated for each restaurant and indexed.
+ * Will try to deliver all valid orders in the order that they appear in the array.
+ * If a flightpath to a restaurant was not found, the order outcome will be "ValidButNotDelivered"
+ *
  */
 public class Flightpath {
 
@@ -23,9 +26,13 @@ public class Flightpath {
 
     public HashMap<String,LngLat[]> flightpaths;
 
+    /**
+     * Constructor initialises the class and loads in all the data from the server to populate the class fields
+     * @param serverURL
+     * @param date
+     */
     public Flightpath(URL serverURL,
                       String date)
-                      //int seed)
     {
         this.noFlyZones = NoFlyZones.getInstance(serverURL);
         this.centralArea = CentralArea.getInstance(serverURL);
@@ -129,15 +136,15 @@ public class Flightpath {
     }
 
     /**
-     * Check segments until the segment that collides with NoFlyZone is found.
+     * Checks path segments until the segment that collides with NoFlyZone is found.
      * If there is more than one collision, find the first collision.
-     * @param a
-     * @param b
+     * @param a LngLat of start
+     * @param b LngLat of destination
      * @return return LngLat close to NoFlyZone
      */
     public LngLat findNoFlyZoneCollision(LngLat a, LngLat b) {
         LngLat end = moveLine(a,b);
-        Float direction = a.angleTo(end);
+        float direction = a.angleTo(end);
         LngLat position = a;
         LngLat nextPosition = position.nextPosition(direction);
         while (!checkNoFlyZoneCollision(position, nextPosition)) {
@@ -229,8 +236,7 @@ public class Flightpath {
         if (collision == a) {
             return null;
         } else {
-            LngLat[] path = moveAroundNoFlyZone(a,b,zone);
-            return path;
+            return moveAroundNoFlyZone(a,b,zone);
         }
     }
 
@@ -244,17 +250,11 @@ public class Flightpath {
     public LngLat[] move(LngLat a, LngLat b) {
         //check collisions
         if (checkNoFlyZoneCollision(a, b)) {
-            LngLat[] path = moveAround(a,b);
-            if (path == null) {
-                return null;
-            } else {
-                return path;
-            }
+            return moveAround(a,b);
         // no collision
         } else {
             LngLat end = moveLine(a,b); //move in straight line to destination
-            LngLat[] path = {end};
-            return path;
+            return new LngLat[]{end};
         }
     }
 
@@ -268,15 +268,13 @@ public class Flightpath {
         LngLat position = a;
         ArrayList<LngLat> pathSegments = new ArrayList<>();
         pathSegments.add(a);
-        while (!position.closeTo(b)) {
+        while (position.closeTo(b)) {
             LngLat[] path = move(position,b);
             if (path == null) {
                 return null;
             }
             position = path[path.length-1];
-            for (int i = 0; i < path.length; i++) {
-                pathSegments.add(path[i]);
-            }
+            Collections.addAll(pathSegments, path);
         }
         LngLat[] finalPath = new LngLat[pathSegments.size()];
         return pathSegments.toArray(finalPath);
@@ -299,17 +297,14 @@ public class Flightpath {
      * Given path to destination, check if it is a valid flightpath.
      * @param a LngLat of start
      * @param b LngLat of destination
-     * @param path
+     * @param path path from start to destination
      * @return true if valid, else false
      */
     public boolean validFlightPath(LngLat a, LngLat b, LngLat[] path) {
         int length = path.length;
-        if (path == null) {
-            return false;
-        }
         if (!(path[0].lng() == a.lng() & path[0].lat() == a.lat())) { //check drone starts at start
             return false;
-        } else if (!path[length-1].closeTo(b)) { //check that drone stops close to destination
+        } else if (path[length - 1].closeTo(b)) { //check that drone stops close to destination
             return false;
         }
         int centralAreaCollision = 0;
@@ -330,16 +325,16 @@ public class Flightpath {
 
     /**
      * Given path segment AB, move the drone along this path
-     * @param a
-     * @param b
+     * @param a LngLat of segment start
+     * @param b LngLat of segment end
      * @return array of Moves that the drone made
      */
     public Move[] moves(String orderNum, LngLat a, LngLat b, long startTime) {
         ArrayList<Move> moves = new ArrayList<>();
         LngLat position = a;
         LngLat nextPosition;
-        Float angle;
-        while (!position.closeTo(b)) {
+        float angle;
+        while (position.closeTo(b)) {
             angle = position.angleTo(b);
             nextPosition = position.nextPosition(angle);
             Move move = new Move(orderNum, position.lng(), position.lat(),
@@ -352,6 +347,14 @@ public class Flightpath {
         return moves.toArray(totalMoves);
     }
 
+    /**
+     * Given an order and a flightpath, calculate all the moves for that flightpath.
+     * @param orderNum order number
+     * @param flightpaths array of the LngLats that make up the flightpath
+     * @param destination LngLat of destination
+     * @param startTime start time of programme execution
+     * @return ArrayList of the moves along flightpath
+     */
     public ArrayList<Move> flightpathMoves(String orderNum, LngLat[] flightpaths, LngLat destination, long startTime) {
         //given flightpath, move drone along entire path
         ArrayList<Move> moves = new ArrayList<>();
@@ -359,13 +362,11 @@ public class Flightpath {
         for (int i = 1; i < flightpaths.length; i++) {
             Move[] segMoves = moves(orderNum, start, flightpaths[i], startTime);
             start = flightpaths[i];
-            for (Move m: segMoves) {
-                moves.add(m);
-            }
+            Collections.addAll(moves, segMoves);
         }
         LngLat currentLocation = moves.get(moves.size()-1).getEnd();
         LngLat nextPosition;
-        while (!currentLocation.closeTo(destination)) {
+        while (currentLocation.closeTo(destination)) {
             float angle = currentLocation.angleTo(destination);
             nextPosition = currentLocation.nextPosition(currentLocation.angleTo(destination));
             Move move = new Move(orderNum,currentLocation.lng(), currentLocation.lat(),
@@ -378,7 +379,11 @@ public class Flightpath {
     }
 
     /**
-     * Deliver a given order
+     * Deliver a given order.
+     * Finds the flightpath for the given order and calculates all the moves for that flightpath
+     * then reverse the flightpath to return to AT.
+     * Hovers for one move at restaurant and hovers for one move
+     * after return to AT.
      * @param order item of class Order
      * @param startTime the start time of the programme execution
      * @return ArrayList of all the moves made while delivering order
@@ -396,12 +401,14 @@ public class Flightpath {
         Move restaurantHover = new Move(orderNum, currentPosition.lng(), currentPosition.lat(), -1,
                                         currentPosition.lng(), currentPosition.lat(),
                                         System.nanoTime()-startTime);
+
         //go from restaurant to AT
         ArrayList<Move> backwards = new ArrayList<>(deliveryMoves.size());
         for (int i = deliveryMoves.size()-1; i >= 0; i--) {
             Move reverse = deliveryMoves.get(i).reverse(startTime);
             backwards.add(reverse);
         }
+        deliveryMoves.add(restaurantHover);
         //hover for one move
         currentPosition = backwards.get(size-1).getEnd();
         Move ATHover = new Move(orderNum, currentPosition.lng(), currentPosition.lat(), -1,
@@ -409,6 +416,7 @@ public class Flightpath {
                 System.nanoTime()-startTime);
         //finished
         deliveryMoves.addAll(backwards);
+        deliveryMoves.add(ATHover);
         return deliveryMoves;
     }
 
@@ -424,13 +432,11 @@ public class Flightpath {
             Restaurant restaurant = Order.getCurrentRestaurant(restaurants, o.getOrderItems());
             if (flightpaths.get(restaurant.name) == null) {
                 invalid.add(o);
-                continue;
             } else {
                 ArrayList<Move> delivery = deliveryMoves(o, startTime);
                 //check battery
                 if (battery - delivery.size() < 0) {
                     invalid.add(o);
-                    continue;
                 } else {
                     //add to flightpath
                     valid.add(o);
@@ -449,6 +455,10 @@ public class Flightpath {
         System.out.println(":)");
     }
 
+    /**
+     * @param date the date that the files will be written for
+     * @throws IOException exception while writing files
+     */
     public void writeFiles(String date) throws IOException {
         deliveries.writeDeliveries(date);
         deliveries.writeFlightpath(date);

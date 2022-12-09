@@ -2,10 +2,19 @@ package uk.ac.ed.inf;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * Used for deserialising json data for points within the central area.
+ */
 public class CentralAreaPoint {
     private String name;
     private LngLat point;
 
+    /**
+     * Deserialises a json entry for a central area point and populates the class fields
+     * @param name name of the point
+     * @param lng longitude of point
+     * @param lat latitude of point
+     */
     private CentralAreaPoint(@JsonProperty("name") String name,
                              @JsonProperty("longitude") double lng,
                              @JsonProperty("latitude") double lat)

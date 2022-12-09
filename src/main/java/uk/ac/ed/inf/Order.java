@@ -14,10 +14,13 @@ import java.net.URL;
 
 /**
  * Orders from json are deserialised into this class.
- * Order class has field to check the status of an order
- * as well as a method to calculate total cost of items inside an order including delivery cost.
+ * Contains methods to validate orders and to retrieve orders from the server
  */
 public class Order {
+
+    /**
+     * Enum to track outcome of the order
+     */
     public enum OrderOutcome {
         Delivered,
         ValidButNotDelivered,
@@ -59,11 +62,6 @@ public class Order {
         this.orderItems = orderItems;
     }
 
-    // GETTERS AND SETTERS
-
-    public OrderOutcome getStatus() {
-        return status;
-    }
     public void setStatus(OrderOutcome status) {
         this.status = status;
     }
@@ -80,8 +78,7 @@ public class Order {
 
     /**
      * Retrieves the orders for a given day from the server
-     *
-     * @param serverAddress
+     * @param serverAddress URL of base server address
      * @return array of orders for a given date
      */
     public static Order[] getOrdersFromRestServer(URL serverAddress, String date) {
@@ -101,10 +98,9 @@ public class Order {
 
     /**
      * Finds and returns the restaurant associated with the first order.
-     *
-     * @param restaurants
-     * @param orders
-     * @return restaurant associated with first order
+     * @param restaurants array of participating restaurant
+     * @param orders String array of orders
+     * @return Restaurant associated with first order
      */
     public static Restaurant getCurrentRestaurant(Restaurant[] restaurants, String[] orders) {
         Restaurant currentRestaurant = null;
@@ -123,8 +119,8 @@ public class Order {
 
     /**
      * Check if pizza combination can be delivered by the same restaurant
-     * @param restaurants
-     * @param orders
+     * @param restaurants array of participating Restaurants
+     * @param orders String array of orders
      * @return true if pizza combo cannot be delivered by the same restaurant
      */
     public Boolean checkPizzaCombination(Restaurant[] restaurants, String[] orders) {
@@ -144,9 +140,8 @@ public class Order {
 
     /**
      * Checks if all pizzas are defined regardless of which restaurant the pizza is served by.
-     *
-     * @param restaurants
-     * @param orders
+     * @param restaurants array of participating Restaurants
+     * @param orders String array of orders
      * @return true if one or more pizzas undefined
      */
     public Boolean checkPizzaDefined(Restaurant[] restaurants, String[] orders) {
