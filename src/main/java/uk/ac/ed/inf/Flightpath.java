@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 
 /**
- * This class loads in all the data necessary to calculate flightpaths.
+ * Loads in all the data necessary to calculate flightpaths.
  * Flightpaths are calculated for each restaurant and indexed.
  * Will try to deliver all valid orders in the order that they appear in the array.
  * If a flightpath to a restaurant was not found, the order outcome will be "ValidButNotDelivered"

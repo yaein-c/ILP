@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.URL;
 
 /**
- * The App class contains the main method of this programme.
+ * Contains the main method of this programme.
  * The runtime arguments are used to call the flightpath algorithm to construct flightpaths for all orders of the day.
  * The methods to create the output files deliveries-YYYY-MM-DD, flightpaths-YYYY-MM-DD, drone-YYYY-MM-DD are called
  * after the algorithm is finished calculating.

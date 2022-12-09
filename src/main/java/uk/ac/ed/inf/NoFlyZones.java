@@ -7,8 +7,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
- * This class has methods for accessing the no-fly-zones following a singleton design pattern.
- * The no-fly-zones are retrieved and deserialised into the class fields on initialisation.
+ * No-fly-zones are retrieved and deserialised into the class fields on initialisation.
+ * Contains methods for accessing the no-fly-zones following a singleton design pattern.
  */
 public class NoFlyZones {
     private static NoFlyZones instance;

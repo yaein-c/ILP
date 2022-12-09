@@ -13,7 +13,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 
 /**
- * Used to store processed orders and possibly write them to a file
+ * Used to store processed orders and flightpaths.
+ * Contains methods for processing orders flightpaths and writing the output files.
  */
 public class Deliveries {
     public ArrayList<DeliveryItem> validDeliveries;
@@ -21,6 +22,11 @@ public class Deliveries {
     public ArrayList<Order> deliveries;
     public ArrayList<Move> flightpath;
 
+    /**
+     * Processes orders on initialisation and populates the class fields.
+     * @param orders array of orders
+     * @param restaurants array of participating restaurants
+     */
     public Deliveries(Order[] orders, Restaurant[] restaurants)
     {
         flightpath = new ArrayList<>();
@@ -48,18 +54,30 @@ public class Deliveries {
         }
     }
 
+    /**
+     * Given an invalid order, update the list of invalid deliveries and remove from list of pending deliveries.
+     * @param order invalid order to be added to list
+     */
     public void processInvalidOrder(Order order) {
         var item = DeliveryItem.createInvalid(order.getOrderNum(), order.getCostInPence());
         invalidDeliveries.add(item);
         deliveries.remove(order);
     }
 
+    /**
+     * Given an valid order, update the list of valid deliveries and remove from list of pending deliveries.
+     * @param order valid order to be added to list
+     */
     public void processValidOrder(Order order) {
         var item = DeliveryItem.createValid(order.getOrderNum(), order.getCostInPence());
         validDeliveries.add(item);
         deliveries.remove(order);
     }
 
+    /**
+     * Convert the calculated flightpath of the drone into a LineString object for serialising into geojson.
+     * @return LineString of flightpath
+     */
     public LineString toLineString() {
         ArrayList<Point> points = new ArrayList<Point>();
         points.add(flightpath.get(0).startToPoint());
@@ -69,10 +87,10 @@ public class Deliveries {
         return LineString.fromLngLats(points);
     }
 
-
     /**
-     * Called after all deliveries have been given an outcome
+     * Called after all orders processed, validated and delivered
      * Writes the json file for deliveries
+     * @param date orders will be processed for this date
      */
     public void writeDeliveries(String date) throws IOException {
         ArrayList<DeliveryItem> allDeliveries = new ArrayList<>();
@@ -87,6 +105,11 @@ public class Deliveries {
         }
     }
 
+    /**
+     * Called after all orders processed, validated and delivered
+     * Writes the json file for drone path
+     * @param date orders will be processed for this date
+     */
     public void writeDrone(String date) {
         LineString lineString = toLineString();
         Feature feature = Feature.fromGeometry(lineString);
@@ -102,6 +125,11 @@ public class Deliveries {
         }
     }
 
+    /**
+     * Called after all orders processed, validated and delivered
+     * Writes the json file for flightpath
+     * @param date orders will be processed for this date
+     */
     public void writeFlightpath(String date) {
         try {
             ObjectMapper mapper = new ObjectMapper();
