@@ -25,6 +25,8 @@ public class Restaurant {
 
     public Menu[] getMenu(){ return menu; }
 
+    public LngLat getLngLat() { return new LngLat(longitude, latitude); }
+
     /**
      * Given a valid url to the REST server, returns array of participating restaurants with their menus.
      * @param serverBaseAddress

@@ -103,10 +103,11 @@ public record LngLat(double lng, double lat){
      * @return LngLat coordinates of new location of drone
      */
     public LngLat nextPosition(float direction, int moves){
-        double r = 0.00015;
-        double x = r * moves * Math.cos(Math.toRadians(direction));
-        double y = r * moves * Math.sin(Math.toRadians(direction));
-        return new LngLat(lng + x, lat + y);
+        LngLat currentPosition = new LngLat(lng,lat);
+        for (int i = 0; i < moves; i++) {
+            currentPosition = currentPosition.nextPosition(direction);
+        }
+        return currentPosition;
     }
 
     /**

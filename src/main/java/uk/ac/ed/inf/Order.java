@@ -74,6 +74,8 @@ public class Order {
 
     public int getCostInPence() { return total; }
 
+    public String[] getOrderItems() { return orderItems; }
+
     // OTHER METHODS
 
     /**
@@ -104,7 +106,7 @@ public class Order {
      * @param orders
      * @return restaurant associated with first order
      */
-    public Restaurant getCurrentRestaurant(Restaurant[] restaurants, String[] orders) {
+    public static Restaurant getCurrentRestaurant(Restaurant[] restaurants, String[] orders) {
         Restaurant currentRestaurant = null;
 
         mainLoop:
