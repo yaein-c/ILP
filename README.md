@@ -6,6 +6,7 @@
 - implement an algorithm to control the flight of the drone
 - algorithm must be able to find efficient flightpath while avoiding no-fly-zones
 - data for the pizza deliveries is fetched from REST-server in json format
+- input validation of the data. Orders that have missing or invalid information must be discarded
 ### Approach
 - implemented a basic geometry engine so that the drone has collision detection
 - implemented my own take on the floodfill algorithm using the functions of the geometry the geometry engine. This is based on the drone trying to take optimistic shortest path and then recalculating the next most optimistic path once a collision is detected
